@@ -90,6 +90,33 @@ func TestSupportRequestService_CreateSupportRequest_NilRequest(t *testing.T) {
 	assert.Nil(t, response)
 }
 
+func TestSupportRequestService_CreateSupportRequest_RepositoryError(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	userEmail := "test@example.com"
+	request := &models.CreateSupportRequestRequest{
+		Type:        models.SupportRequestTypeSupport,
+		UserEmail:   &userEmail,
+		Message:     "Test message",
+		Platform:    models.PlatformIOS,
+		AppVersion:  "1.0.0",
+		DeviceModel: "iPhone 13",
+	}
+
+	mockRepo.On("Create", mock.AnythingOfType("*models.SupportRequest")).Return(errors.New("database error"))
+
+	// Act
+	response, err := service.CreateSupportRequest(request)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Nil(t, response)
+	assert.Contains(t, err.Error(), "database error")
+	mockRepo.AssertExpectations(t)
+}
+
 func TestSupportRequestService_GetSupportRequest(t *testing.T) {
 	// Arrange
 	mockRepo := new(MockSupportRequestRepository)
@@ -134,6 +161,23 @@ func TestSupportRequestService_GetSupportRequest_NotFound(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, ErrSupportRequestNotFound, err)
 	assert.Nil(t, response)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestSupportRequestService_GetSupportRequest_RepositoryError(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	mockRepo.On("GetByID", uint(1)).Return(nil, errors.New("database error"))
+
+	// Act
+	response, err := service.GetSupportRequest(1)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Nil(t, response)
+	assert.Equal(t, ErrSupportRequestNotFound, err) // Service converts all repo errors to ErrSupportRequestNotFound
 	mockRepo.AssertExpectations(t)
 }
 
@@ -186,6 +230,77 @@ func TestSupportRequestService_GetAllSupportRequests_InvalidPagination(t *testin
 
 	// Act - Test with invalid page and pageSize
 	responses, total, err := service.GetAllSupportRequests(0, 0)
+
+	// Assert
+	assert.NoError(t, err)
+	assert.Empty(t, responses)
+	assert.Equal(t, int64(0), total)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestSupportRequestService_GetAllSupportRequests_EmptyResult(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	mockRepo.On("GetAll", 0, 20).Return([]*models.SupportRequest{}, int64(0), nil)
+
+	// Act
+	responses, total, err := service.GetAllSupportRequests(1, 20)
+
+	// Assert
+	assert.NoError(t, err)
+	assert.Empty(t, responses)
+	assert.Equal(t, int64(0), total)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestSupportRequestService_GetAllSupportRequests_RepositoryError(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	mockRepo.On("GetAll", 0, 20).Return([]*models.SupportRequest(nil), int64(0), errors.New("database error"))
+
+	// Act
+	responses, total, err := service.GetAllSupportRequests(1, 20)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Nil(t, responses)
+	assert.Equal(t, int64(0), total)
+	assert.Contains(t, err.Error(), "database error")
+	mockRepo.AssertExpectations(t)
+}
+
+func TestSupportRequestService_GetAllSupportRequests_LargePage(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	// Test with very large page size (should be capped to 20)
+	mockRepo.On("GetAll", 0, 20).Return([]*models.SupportRequest{}, int64(0), nil)
+
+	// Act
+	responses, total, err := service.GetAllSupportRequests(1, 1000)
+
+	// Assert
+	assert.NoError(t, err)
+	assert.Empty(t, responses)
+	assert.Equal(t, int64(0), total)
+	mockRepo.AssertExpectations(t)
+}
+
+func TestSupportRequestService_GetAllSupportRequests_NegativePage(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	// Test with negative page (should be corrected to page 1)
+	mockRepo.On("GetAll", 0, 20).Return([]*models.SupportRequest{}, int64(0), nil)
+
+	// Act
+	responses, total, err := service.GetAllSupportRequests(-5, 20)
 
 	// Assert
 	assert.NoError(t, err)
@@ -254,6 +369,41 @@ func TestSupportRequestService_UpdateSupportRequest_NotFound(t *testing.T) {
 	mockRepo.AssertExpectations(t)
 }
 
+func TestSupportRequestService_UpdateSupportRequest_RepositoryError(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	userEmail := "test@example.com"
+	originalRequest := &models.SupportRequest{
+		ID:          1,
+		Type:        models.SupportRequestTypeSupport,
+		UserEmail:   &userEmail,
+		Message:     "Test message",
+		Platform:    models.PlatformIOS,
+		AppVersion:  "1.0.0",
+		DeviceModel: "iPhone 13",
+		Status:      models.StatusNew,
+	}
+
+	newStatus := models.StatusInProgress
+	updateRequest := &models.UpdateSupportRequestRequest{
+		Status: &newStatus,
+	}
+
+	mockRepo.On("GetByID", uint(1)).Return(originalRequest, nil)
+	mockRepo.On("Update", mock.AnythingOfType("*models.SupportRequest")).Return(errors.New("database error"))
+
+	// Act
+	response, err := service.UpdateSupportRequest(1, updateRequest)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Nil(t, response)
+	assert.Contains(t, err.Error(), "database error")
+	mockRepo.AssertExpectations(t)
+}
+
 func TestSupportRequestService_DeleteSupportRequest(t *testing.T) {
 	// Arrange
 	mockRepo := new(MockSupportRequestRepository)
@@ -289,4 +439,35 @@ func TestSupportRequestService_DeleteSupportRequest_NotFound(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, ErrSupportRequestNotFound, err)
 	mockRepo.AssertExpectations(t)
+}
+
+func TestSupportRequestService_DeleteSupportRequest_RepositoryError(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	mockRepo.On("GetByID", uint(1)).Return(&models.SupportRequest{ID: 1}, nil)
+	mockRepo.On("Delete", uint(1)).Return(errors.New("database error"))
+
+	// Act
+	err := service.DeleteSupportRequest(1)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "database error")
+	mockRepo.AssertExpectations(t)
+}
+
+func TestSupportRequestService_UpdateSupportRequest_NilRequest(t *testing.T) {
+	// Arrange
+	mockRepo := new(MockSupportRequestRepository)
+	service := NewSupportRequestService(mockRepo)
+
+	// Act
+	response, err := service.UpdateSupportRequest(1, nil)
+
+	// Assert
+	assert.Error(t, err)
+	assert.Nil(t, response)
+	assert.Equal(t, ErrInvalidRequest, err) // Service returns ErrInvalidRequest for nil requests
 }
