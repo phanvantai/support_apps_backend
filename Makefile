@@ -1,4 +1,4 @@
-.PHONY: help dev-setup dev-up dev-down dev-restart test test-coverage migrate-up migrate-down migrate-status logs clean railway-prepare
+.PHONY: help dev-setup dev-up dev-down dev-restart test test-coverage migrate-up migrate-down migrate-status logs clean railway-prepare swagger-docs
 
 # Default target
 help:
@@ -19,6 +19,9 @@ help:
 	@echo "  migrate-up    - Apply database migrations"
 	@echo "  migrate-down  - Rollback last migration"
 	@echo "  migrate-status- Check migration status"
+	@echo ""
+	@echo "📖 Documentation:"
+	@echo "  swagger-docs  - Generate Swagger API documentation"
 	@echo ""
 	@echo "🚂 Railway Deployment:"
 	@echo "  railway-prepare - Prepare for Railway deployment"
@@ -147,6 +150,19 @@ railway-prepare:
 	@echo "📚 Railway will use the Dockerfile to build and deploy"
 	@go mod tidy
 	@echo "✅ Dependencies cleaned up and ready for deployment"
+
+# === DOCUMENTATION COMMANDS ===
+
+# Generate Swagger API documentation
+swagger-docs:
+	@echo "📖 Generating Swagger API documentation..."
+	@if ! command -v swag >/dev/null 2>&1; then \
+		echo "Installing swag CLI tool..."; \
+		go install github.com/swaggo/swag/cmd/swag@latest; \
+	fi
+	@swag init -g cmd/main.go -o docs --parseDependency --parseInternal
+	@echo "✅ Swagger documentation generated in docs/ directory"
+	@echo "💡 Start the server and visit http://localhost:8080/swagger/index.html"
 
 # === CLEANUP COMMANDS ===
 

@@ -48,34 +48,37 @@ type SupportRequest struct {
 }
 
 // CreateSupportRequestRequest represents the payload for creating a support request
+// @Description Request payload for creating a new support request
 type CreateSupportRequestRequest struct {
-	Type        SupportRequestType `json:"type" binding:"required,oneof=support feedback"`
-	UserEmail   *string            `json:"user_email,omitempty"`
-	Message     string             `json:"message" binding:"required"`
-	Platform    Platform           `json:"platform" binding:"required,oneof=iOS Android"`
-	AppVersion  string             `json:"app_version" binding:"required"`
-	DeviceModel string             `json:"device_model" binding:"required"`
+	Type        SupportRequestType `json:"type" binding:"required,oneof=support feedback" example:"support"`               // Type of request (support or feedback)
+	UserEmail   *string            `json:"user_email,omitempty" example:"user@example.com"`                                // Optional user email
+	Message     string             `json:"message" binding:"required" example:"I'm having trouble with the login feature"` // Support request message
+	Platform    Platform           `json:"platform" binding:"required,oneof=iOS Android" example:"iOS"`                    // Mobile platform
+	AppVersion  string             `json:"app_version" binding:"required" example:"1.2.3"`                                 // Application version
+	DeviceModel string             `json:"device_model" binding:"required" example:"iPhone 14 Pro"`                        // Device model
 }
 
 // UpdateSupportRequestRequest represents the payload for updating a support request
+// @Description Request payload for updating support request status and admin notes
 type UpdateSupportRequestRequest struct {
-	Status     *Status `json:"status,omitempty" binding:"omitempty,oneof=new in_progress resolved"`
-	AdminNotes *string `json:"admin_notes,omitempty"`
+	Status     *Status `json:"status,omitempty" binding:"omitempty,oneof=new in_progress resolved" example:"in_progress"` // New status
+	AdminNotes *string `json:"admin_notes,omitempty" example:"Contacted user for more details"`                           // Admin notes
 }
 
 // SupportRequestResponse represents the API response for support requests
+// @Description Support request response with all details
 type SupportRequestResponse struct {
-	ID          uint               `json:"id"`
-	Type        SupportRequestType `json:"type"`
-	UserEmail   *string            `json:"user_email,omitempty"`
-	Message     string             `json:"message"`
-	Platform    Platform           `json:"platform"`
-	AppVersion  string             `json:"app_version"`
-	DeviceModel string             `json:"device_model"`
-	Status      Status             `json:"status"`
-	AdminNotes  *string            `json:"admin_notes,omitempty"`
-	CreatedAt   time.Time          `json:"created_at"`
-	UpdatedAt   time.Time          `json:"updated_at"`
+	ID          uint               `json:"id" example:"1"`                                                  // Support request ID
+	Type        SupportRequestType `json:"type" example:"support"`                                          // Type of request
+	UserEmail   *string            `json:"user_email,omitempty" example:"user@example.com"`                 // User email (optional)
+	Message     string             `json:"message" example:"I'm having trouble with the login feature"`     // Support request message
+	Platform    Platform           `json:"platform" example:"iOS"`                                          // Mobile platform
+	AppVersion  string             `json:"app_version" example:"1.2.3"`                                     // Application version
+	DeviceModel string             `json:"device_model" example:"iPhone 14 Pro"`                            // Device model
+	Status      Status             `json:"status" example:"new"`                                            // Current status
+	AdminNotes  *string            `json:"admin_notes,omitempty" example:"Contacted user for more details"` // Admin notes (optional)
+	CreatedAt   time.Time          `json:"created_at" example:"2023-12-01T10:00:00Z"`                       // Creation timestamp
+	UpdatedAt   time.Time          `json:"updated_at" example:"2023-12-01T10:00:00Z"`                       // Last update timestamp
 }
 
 // ToResponse converts SupportRequest to SupportRequestResponse

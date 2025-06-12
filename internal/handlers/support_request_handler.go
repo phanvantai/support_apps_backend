@@ -22,6 +22,16 @@ func NewSupportRequestHandler(service services.SupportRequestService) *SupportRe
 }
 
 // CreateSupportRequest handles POST /api/v1/support-request
+// @Summary Create support request
+// @Description Create a new support request (public endpoint with rate limiting)
+// @Tags Support Requests
+// @Accept json
+// @Produce json
+// @Param request body models.CreateSupportRequestRequest true "Support request data"
+// @Success 201 {object} map[string]interface{} "Support request created successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 429 {object} map[string]interface{} "Rate limit exceeded"
+// @Router /support-request [post]
 func (h *SupportRequestHandler) CreateSupportRequest(c *gin.Context) {
 	var req models.CreateSupportRequestRequest
 
@@ -44,6 +54,19 @@ func (h *SupportRequestHandler) CreateSupportRequest(c *gin.Context) {
 }
 
 // GetSupportRequest handles GET /api/v1/support-requests/:id
+// @Summary Get support request by ID (Admin only)
+// @Description Get support request details by ID (requires admin authentication)
+// @Tags Support Requests
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Support Request ID"
+// @Success 200 {object} map[string]interface{} "Support request details"
+// @Failure 400 {object} map[string]interface{} "Invalid ID format"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 403 {object} map[string]interface{} "Forbidden - Admin access required"
+// @Failure 404 {object} map[string]interface{} "Support request not found"
+// @Router /support-requests/{id} [get]
 func (h *SupportRequestHandler) GetSupportRequest(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 32)
@@ -66,6 +89,18 @@ func (h *SupportRequestHandler) GetSupportRequest(c *gin.Context) {
 }
 
 // GetAllSupportRequests handles GET /api/v1/support-requests
+// @Summary Get all support requests (Admin only)
+// @Description Get paginated list of all support requests (requires admin authentication)
+// @Tags Support Requests
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param page query int false "Page number" default(1)
+// @Param page_size query int false "Page size" default(20)
+// @Success 200 {object} map[string]interface{} "Support requests list"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 403 {object} map[string]interface{} "Forbidden - Admin access required"
+// @Router /support-requests [get]
 func (h *SupportRequestHandler) GetAllSupportRequests(c *gin.Context) {
 	// Parse pagination parameters
 	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
@@ -92,6 +127,20 @@ func (h *SupportRequestHandler) GetAllSupportRequests(c *gin.Context) {
 }
 
 // UpdateSupportRequest handles PATCH /api/v1/support-requests/:id
+// @Summary Update support request (Admin only)
+// @Description Update support request details (requires admin authentication)
+// @Tags Support Requests
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Support Request ID"
+// @Param request body models.UpdateSupportRequestRequest true "Support request update data"
+// @Success 200 {object} map[string]interface{} "Support request updated successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid request"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 403 {object} map[string]interface{} "Forbidden - Admin access required"
+// @Failure 404 {object} map[string]interface{} "Support request not found"
+// @Router /support-requests/{id} [patch]
 func (h *SupportRequestHandler) UpdateSupportRequest(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 32)
@@ -124,6 +173,19 @@ func (h *SupportRequestHandler) UpdateSupportRequest(c *gin.Context) {
 }
 
 // DeleteSupportRequest handles DELETE /api/v1/support-requests/:id
+// @Summary Delete support request (Admin only)
+// @Description Delete support request (requires admin authentication)
+// @Tags Support Requests
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Param id path int true "Support Request ID"
+// @Success 204 "Support request deleted successfully"
+// @Failure 400 {object} map[string]interface{} "Invalid ID format"
+// @Failure 401 {object} map[string]interface{} "Unauthorized"
+// @Failure 403 {object} map[string]interface{} "Forbidden - Admin access required"
+// @Failure 404 {object} map[string]interface{} "Support request not found"
+// @Router /support-requests/{id} [delete]
 func (h *SupportRequestHandler) DeleteSupportRequest(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.ParseUint(idParam, 10, 32)
@@ -146,6 +208,13 @@ func (h *SupportRequestHandler) DeleteSupportRequest(c *gin.Context) {
 }
 
 // HealthCheck handles GET /health
+// @Summary Health check
+// @Description Check if the service is running and healthy
+// @Tags Health
+// @Accept json
+// @Produce json
+// @Success 200 {object} map[string]interface{} "Service is healthy"
+// @Router /health [get]
 func (h *SupportRequestHandler) HealthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "healthy",

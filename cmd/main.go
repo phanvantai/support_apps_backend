@@ -1,8 +1,29 @@
+// @title Support App Backend API
+// @version 1.0
+// @description RESTful API for support tickets management with authentication and authorization
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.support-app.io/support
+// @contact.email support@support-app.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8080
+// @BasePath /api/v1
+
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
+// @description Type "Bearer" followed by a space and JWT token.
+
 package main
 
 import (
 	"fmt"
 	"log"
+	"support-app-backend/docs"
 	"support-app-backend/internal/config"
 	"support-app-backend/internal/handlers"
 	"support-app-backend/internal/middleware"
@@ -11,6 +32,8 @@ import (
 	"support-app-backend/internal/services"
 
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -209,6 +232,12 @@ func setupRouter(cfg *config.Config, supportHandler *handlers.SupportRequestHand
 
 		c.Next()
 	})
+
+	// Initialize Swagger docs
+	docs.SwaggerInfo.Host = "localhost:" + cfg.Server.Port
+
+	// Swagger endpoint
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	// Health check endpoint (no authentication required)
 	router.GET("/health", supportHandler.HealthCheck)
