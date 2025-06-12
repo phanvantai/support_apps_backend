@@ -3,6 +3,7 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"net/http"
 	"net/http/httptest"
 	"support-app-backend/internal/models"
@@ -252,6 +253,120 @@ func TestSupportRequestHandler_UpdateSupportRequest(t *testing.T) {
 	mockService.AssertExpectations(t)
 }
 
+func TestSupportRequestHandler_UpdateSupportRequest_InvalidID(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.PATCH("/support-requests/:id", handler.UpdateSupportRequest)
+
+	req, _ := http.NewRequest("PATCH", "/support-requests/invalid", bytes.NewBuffer([]byte("{}")))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Invalid ID format", response["error"])
+}
+
+func TestSupportRequestHandler_UpdateSupportRequest_InvalidJSON(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.PATCH("/support-requests/:id", handler.UpdateSupportRequest)
+
+	req, _ := http.NewRequest("PATCH", "/support-requests/1", bytes.NewBuffer([]byte("invalid json")))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestSupportRequestHandler_UpdateSupportRequest_NotFound(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.PATCH("/support-requests/:id", handler.UpdateSupportRequest)
+
+	mockService.On("UpdateSupportRequest", uint(999), mock.AnythingOfType("*models.UpdateSupportRequestRequest")).
+		Return(nil, services.ErrSupportRequestNotFound)
+
+	req, _ := http.NewRequest("PATCH", "/support-requests/999", bytes.NewBuffer([]byte("{}")))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Support request not found", response["error"])
+}
+
+func TestSupportRequestHandler_UpdateSupportRequest_InvalidRequest(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.PATCH("/support-requests/:id", handler.UpdateSupportRequest)
+
+	mockService.On("UpdateSupportRequest", uint(1), mock.AnythingOfType("*models.UpdateSupportRequestRequest")).
+		Return(nil, services.ErrInvalidRequest)
+
+	req, _ := http.NewRequest("PATCH", "/support-requests/1", bytes.NewBuffer([]byte("{}")))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+}
+
+func TestSupportRequestHandler_UpdateSupportRequest_ServiceError(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.PATCH("/support-requests/:id", handler.UpdateSupportRequest)
+
+	mockService.On("UpdateSupportRequest", uint(1), mock.AnythingOfType("*models.UpdateSupportRequestRequest")).
+		Return(nil, errors.New("service error"))
+
+	req, _ := http.NewRequest("PATCH", "/support-requests/1", bytes.NewBuffer([]byte("{}")))
+	req.Header.Set("Content-Type", "application/json")
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Failed to update support request", response["error"])
+}
+
 func TestSupportRequestHandler_DeleteSupportRequest(t *testing.T) {
 	// Arrange
 	mockService := new(MockSupportRequestService)
@@ -270,6 +385,76 @@ func TestSupportRequestHandler_DeleteSupportRequest(t *testing.T) {
 	// Assert
 	assert.Equal(t, http.StatusNoContent, w.Code)
 	mockService.AssertExpectations(t)
+}
+
+func TestSupportRequestHandler_DeleteSupportRequest_InvalidID(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.DELETE("/support-requests/:id", handler.DeleteSupportRequest)
+
+	req, _ := http.NewRequest("DELETE", "/support-requests/invalid", nil)
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusBadRequest, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Invalid ID format", response["error"])
+}
+
+func TestSupportRequestHandler_DeleteSupportRequest_NotFound(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.DELETE("/support-requests/:id", handler.DeleteSupportRequest)
+
+	mockService.On("DeleteSupportRequest", uint(999)).Return(services.ErrSupportRequestNotFound)
+
+	req, _ := http.NewRequest("DELETE", "/support-requests/999", nil)
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusNotFound, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Support request not found", response["error"])
+}
+
+func TestSupportRequestHandler_DeleteSupportRequest_ServiceError(t *testing.T) {
+	// Arrange
+	mockService := new(MockSupportRequestService)
+	handler := NewSupportRequestHandler(mockService)
+	router := setupTestRouter()
+	router.DELETE("/support-requests/:id", handler.DeleteSupportRequest)
+
+	mockService.On("DeleteSupportRequest", uint(1)).Return(errors.New("service error"))
+
+	req, _ := http.NewRequest("DELETE", "/support-requests/1", nil)
+
+	// Act
+	w := httptest.NewRecorder()
+	router.ServeHTTP(w, req)
+
+	// Assert
+	assert.Equal(t, http.StatusInternalServerError, w.Code)
+
+	var response map[string]interface{}
+	err := json.Unmarshal(w.Body.Bytes(), &response)
+	assert.NoError(t, err)
+	assert.Equal(t, "Failed to delete support request", response["error"])
 }
 
 func TestSupportRequestHandler_HealthCheck(t *testing.T) {

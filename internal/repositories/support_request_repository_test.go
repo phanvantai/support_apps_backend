@@ -7,7 +7,7 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/suite"
-	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
@@ -20,11 +20,11 @@ type SupportRequestRepositoryTestSuite struct {
 
 func (suite *SupportRequestRepositoryTestSuite) SetupSuite() {
 	// Use in-memory SQLite for testing
-	db, err := gorm.Open(postgres.Open("postgres://postgres:password@localhost:5432/test_db?sslmode=disable"), &gorm.Config{
+	db, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Silent),
 	})
 	if err != nil {
-		suite.T().Skip("Skipping repository tests - PostgreSQL not available")
+		suite.T().Skip("Skipping repository tests - SQLite not available")
 		return
 	}
 

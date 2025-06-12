@@ -3,7 +3,7 @@
 ## Project Overview
 Go-based RESTful API for support tickets using **Test-Driven Development (TDD)** and **Clean Architecture**.
 
-**Tech Stack**: Go 1.24+, Gin, PostgreSQL, GORM, JWT, Testify
+**Tech Stack**: Go 1.23+, Gin, PostgreSQL, GORM, JWT, Testify
 
 ## TDD Development Rules
 
@@ -13,7 +13,7 @@ Go-based RESTful API for support tickets using **Test-Driven Development (TDD)**
 3. **Refactor**: Improve while keeping tests green
 
 ### 2. Testing Requirements
-- **Test Coverage**: >80%
+- **Test Coverage**: >95%
 - **Test Naming**: `TestComponent_Method_Scenario`
 - **Test Types**: Unit, Integration, Repository, Handler, Middleware
 - **Test Files**: `*_test.go` alongside source files
@@ -69,16 +69,6 @@ make migrate-up       # Apply database migrations
 make migrate-down     # Rollback database migrations
 make migrate-status   # Check migration status
 make seed-db          # Seed database with sample data
-
-# Code Quality
-make fmt              # Format code
-make lint             # Run linter
-make security         # Run security checks
-
-# Docker Operations
-make docker-build     # Build Docker images
-make docker-up        # Start with Docker Compose
-make docker-down      # Stop Docker containers
 
 # Utilities
 make env-setup        # Setup environment files
