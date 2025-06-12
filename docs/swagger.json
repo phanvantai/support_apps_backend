@@ -38,7 +38,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/support-app-backend_internal_models.LoginRequest"
+                            "$ref": "#/definitions/models.LoginRequest"
                         }
                     }
                 ],
@@ -135,7 +135,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/support-app-backend_internal_models.ChangePasswordRequest"
+                            "$ref": "#/definitions/models.ChangePasswordRequest"
                         }
                     }
                 ],
@@ -253,7 +253,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/support-app-backend_internal_models.CreateUserRequest"
+                            "$ref": "#/definitions/models.CreateUserRequest"
                         }
                     }
                 ],
@@ -452,7 +452,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/support-app-backend_internal_models.UpdateUserRequest"
+                            "$ref": "#/definitions/models.UpdateUserRequest"
                         }
                     }
                 ],
@@ -495,30 +495,6 @@
                 }
             }
         },
-        "/health": {
-            "get": {
-                "description": "Check if the service is running and healthy",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "Health"
-                ],
-                "summary": "Health check",
-                "responses": {
-                    "200": {
-                        "description": "Service is healthy",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    }
-                }
-            }
-        },
         "/support-request": {
             "post": {
                 "description": "Create a new support request (public endpoint with rate limiting)",
@@ -539,7 +515,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/support-app-backend_internal_models.CreateSupportRequestRequest"
+                            "$ref": "#/definitions/models.CreateSupportRequestRequest"
                         }
                     }
                 ],
@@ -783,7 +759,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/support-app-backend_internal_models.UpdateSupportRequestRequest"
+                            "$ref": "#/definitions/models.UpdateSupportRequestRequest"
                         }
                     }
                 ],
@@ -828,7 +804,7 @@
         }
     },
     "definitions": {
-        "support-app-backend_internal_models.ChangePasswordRequest": {
+        "models.ChangePasswordRequest": {
             "description": "Request payload for changing user password",
             "type": "object",
             "required": [
@@ -849,7 +825,7 @@
                 }
             }
         },
-        "support-app-backend_internal_models.CreateSupportRequestRequest": {
+        "models.CreateSupportRequestRequest": {
             "description": "Request payload for creating a new support request",
             "type": "object",
             "required": [
@@ -889,7 +865,7 @@
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/support-app-backend_internal_models.Platform"
+                            "$ref": "#/definitions/models.Platform"
                         }
                     ],
                     "example": "iOS"
@@ -902,7 +878,7 @@
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/support-app-backend_internal_models.SupportRequestType"
+                            "$ref": "#/definitions/models.SupportRequestType"
                         }
                     ],
                     "example": "support"
@@ -914,7 +890,7 @@
                 }
             }
         },
-        "support-app-backend_internal_models.CreateUserRequest": {
+        "models.CreateUserRequest": {
             "description": "Request payload for creating a new user",
             "type": "object",
             "required": [
@@ -943,7 +919,7 @@
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/support-app-backend_internal_models.UserRole"
+                            "$ref": "#/definitions/models.UserRole"
                         }
                     ],
                     "example": "user"
@@ -957,7 +933,7 @@
                 }
             }
         },
-        "support-app-backend_internal_models.LoginRequest": {
+        "models.LoginRequest": {
             "description": "User login request",
             "type": "object",
             "required": [
@@ -977,7 +953,7 @@
                 }
             }
         },
-        "support-app-backend_internal_models.Platform": {
+        "models.Platform": {
             "type": "string",
             "enum": [
                 "iOS",
@@ -988,7 +964,7 @@
                 "PlatformAndroid"
             ]
         },
-        "support-app-backend_internal_models.Status": {
+        "models.Status": {
             "type": "string",
             "enum": [
                 "new",
@@ -1001,7 +977,7 @@
                 "StatusResolved"
             ]
         },
-        "support-app-backend_internal_models.SupportRequestType": {
+        "models.SupportRequestType": {
             "type": "string",
             "enum": [
                 "support",
@@ -1012,7 +988,7 @@
                 "SupportRequestTypeFeedback"
             ]
         },
-        "support-app-backend_internal_models.UpdateSupportRequestRequest": {
+        "models.UpdateSupportRequestRequest": {
             "description": "Request payload for updating support request status and admin notes",
             "type": "object",
             "properties": {
@@ -1030,14 +1006,14 @@
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/support-app-backend_internal_models.Status"
+                            "$ref": "#/definitions/models.Status"
                         }
                     ],
                     "example": "in_progress"
                 }
             }
         },
-        "support-app-backend_internal_models.UpdateUserRequest": {
+        "models.UpdateUserRequest": {
             "description": "Request payload for updating user information",
             "type": "object",
             "properties": {
@@ -1059,14 +1035,14 @@
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/support-app-backend_internal_models.UserRole"
+                            "$ref": "#/definitions/models.UserRole"
                         }
                     ],
                     "example": "admin"
                 }
             }
         },
-        "support-app-backend_internal_models.UserRole": {
+        "models.UserRole": {
             "type": "string",
             "enum": [
                 "admin",

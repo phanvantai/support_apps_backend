@@ -208,13 +208,6 @@ func (h *SupportRequestHandler) DeleteSupportRequest(c *gin.Context) {
 }
 
 // HealthCheck handles GET /health
-// @Summary Health check
-// @Description Check if the service is running and healthy
-// @Tags Health
-// @Accept json
-// @Produce json
-// @Success 200 {object} map[string]interface{} "Service is healthy"
-// @Router /health [get]
 func (h *SupportRequestHandler) HealthCheck(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"status":  "healthy",
