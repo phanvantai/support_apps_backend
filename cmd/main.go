@@ -92,6 +92,8 @@ func connectDatabase(cfg config.DatabaseConfig) (*gorm.DB, error) {
 }
 
 func autoMigrate(db *gorm.DB) error {
+	// Run migrations for both tables
+	// GORM will handle schema changes gracefully
 	return db.AutoMigrate(&models.SupportRequest{}, &models.User{})
 }
 

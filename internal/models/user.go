@@ -18,8 +18,8 @@ const (
 // User represents a system user
 type User struct {
 	ID           uint           `json:"id" gorm:"primaryKey"`
-	Username     string         `json:"username" gorm:"uniqueIndex;not null;size:50"`
-	Email        string         `json:"email" gorm:"uniqueIndex;not null;size:255"`
+	Username     string         `json:"username" gorm:"not null;size:50;unique"`
+	Email        string         `json:"email" gorm:"not null;size:255;unique"`
 	PasswordHash string         `json:"-" gorm:"not null"`
 	Role         UserRole       `json:"role" gorm:"not null;default:user"`
 	IsActive     bool           `json:"is_active" gorm:"not null;default:true"`

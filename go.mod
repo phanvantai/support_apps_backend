@@ -1,6 +1,6 @@
 module support-app-backend
 
-go 1.24.2
+go 1.23
 
 require (
 	github.com/gin-gonic/gin v1.10.0
