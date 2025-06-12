@@ -40,6 +40,7 @@ type SupportRequest struct {
 	Platform    Platform           `json:"platform" gorm:"not null" binding:"required,oneof=iOS Android"`
 	AppVersion  string             `json:"app_version" gorm:"not null" binding:"required"`
 	DeviceModel string             `json:"device_model" gorm:"not null" binding:"required"`
+	App         string             `json:"app" gorm:"not null" binding:"required"`
 	Status      Status             `json:"status" gorm:"not null;default:new"`
 	AdminNotes  *string            `json:"admin_notes,omitempty" gorm:"type:text"`
 	CreatedAt   time.Time          `json:"created_at"`
@@ -56,6 +57,7 @@ type CreateSupportRequestRequest struct {
 	Platform    Platform           `json:"platform" binding:"required,oneof=iOS Android" example:"iOS"`                    // Mobile platform
 	AppVersion  string             `json:"app_version" binding:"required" example:"1.2.3"`                                 // Application version
 	DeviceModel string             `json:"device_model" binding:"required" example:"iPhone 14 Pro"`                        // Device model
+	App         string             `json:"app" binding:"required" example:"my-awesome-app"`                                // Application name
 }
 
 // UpdateSupportRequestRequest represents the payload for updating a support request
@@ -75,6 +77,7 @@ type SupportRequestResponse struct {
 	Platform    Platform           `json:"platform" example:"iOS"`                                          // Mobile platform
 	AppVersion  string             `json:"app_version" example:"1.2.3"`                                     // Application version
 	DeviceModel string             `json:"device_model" example:"iPhone 14 Pro"`                            // Device model
+	App         string             `json:"app" example:"my-awesome-app"`                                    // Application name
 	Status      Status             `json:"status" example:"new"`                                            // Current status
 	AdminNotes  *string            `json:"admin_notes,omitempty" example:"Contacted user for more details"` // Admin notes (optional)
 	CreatedAt   time.Time          `json:"created_at" example:"2023-12-01T10:00:00Z"`                       // Creation timestamp
@@ -91,6 +94,7 @@ func (sr *SupportRequest) ToResponse() *SupportRequestResponse {
 		Platform:    sr.Platform,
 		AppVersion:  sr.AppVersion,
 		DeviceModel: sr.DeviceModel,
+		App:         sr.App,
 		Status:      sr.Status,
 		AdminNotes:  sr.AdminNotes,
 		CreatedAt:   sr.CreatedAt,

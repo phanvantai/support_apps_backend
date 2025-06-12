@@ -23,6 +23,7 @@ func TestSupportRequest_ToResponse_CompleteRequest(t *testing.T) {
 		DeviceModel: "iPhone 13",
 		Status:      StatusNew,
 		AdminNotes:  &adminNotes,
+		App:         "my-awesome-app", // Add app field
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -40,6 +41,7 @@ func TestSupportRequest_ToResponse_CompleteRequest(t *testing.T) {
 	assert.Equal(t, supportRequest.DeviceModel, response.DeviceModel)
 	assert.Equal(t, supportRequest.Status, response.Status)
 	assert.Equal(t, supportRequest.AdminNotes, response.AdminNotes)
+	assert.Equal(t, supportRequest.App, response.App) // Test app field
 	assert.Equal(t, supportRequest.CreatedAt, response.CreatedAt)
 	assert.Equal(t, supportRequest.UpdatedAt, response.UpdatedAt)
 }
@@ -55,6 +57,7 @@ func TestSupportRequest_ToResponse_MinimalRequest(t *testing.T) {
 		AppVersion:  "2.0.0",
 		DeviceModel: "Samsung Galaxy",
 		Status:      StatusResolved,
+		App:         "another-app", // Add app field
 		CreatedAt:   now,
 		UpdatedAt:   now,
 	}
@@ -72,6 +75,7 @@ func TestSupportRequest_ToResponse_MinimalRequest(t *testing.T) {
 	assert.Equal(t, supportRequest.DeviceModel, response.DeviceModel)
 	assert.Equal(t, supportRequest.Status, response.Status)
 	assert.Nil(t, response.AdminNotes)
+	assert.Equal(t, supportRequest.App, response.App) // Test app field
 	assert.Equal(t, supportRequest.CreatedAt, response.CreatedAt)
 	assert.Equal(t, supportRequest.UpdatedAt, response.UpdatedAt)
 }
@@ -131,6 +135,7 @@ func TestSupportRequest_ToResponse_NilPointers(t *testing.T) {
 		Platform:    PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app-nil", // Add app field
 		Status:      StatusNew,
 		AdminNotes:  nil, // nil admin notes
 		CreatedAt:   time.Now(),
@@ -148,6 +153,7 @@ func TestSupportRequest_ToResponse_NilPointers(t *testing.T) {
 	assert.Equal(t, supportRequest.Platform, response.Platform)
 	assert.Equal(t, supportRequest.AppVersion, response.AppVersion)
 	assert.Equal(t, supportRequest.DeviceModel, response.DeviceModel)
+	assert.Equal(t, supportRequest.App, response.App) // Test app field
 	assert.Equal(t, supportRequest.Status, response.Status)
 	assert.Nil(t, response.AdminNotes)
 	assert.Equal(t, supportRequest.CreatedAt, response.CreatedAt)
@@ -169,6 +175,7 @@ func TestSupportRequest_ToResponse_ZeroValues(t *testing.T) {
 	assert.Equal(t, Platform(""), response.Platform)
 	assert.Equal(t, "", response.AppVersion)
 	assert.Equal(t, "", response.DeviceModel)
+	assert.Equal(t, "", response.App) // Test app field for zero values
 	assert.Equal(t, Status(""), response.Status)
 	assert.Nil(t, response.AdminNotes)
 	assert.True(t, response.CreatedAt.IsZero())
@@ -215,4 +222,50 @@ func TestStatus_TypeSafety(t *testing.T) {
 	// Test invalid status
 	invalidStatus := Status("cancelled")
 	assert.Equal(t, "cancelled", string(invalidStatus))
+}
+
+func TestSupportRequest_ToResponse_AppField(t *testing.T) {
+	// Arrange
+	supportRequest := &SupportRequest{
+		ID:          1,
+		Type:        SupportRequestTypeSupport,
+		Message:     "Test message",
+		Platform:    PlatformIOS,
+		AppVersion:  "1.0.0",
+		DeviceModel: "iPhone 13",
+		Status:      StatusNew,
+		App:         "test-app",
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	// Act
+	response := supportRequest.ToResponse()
+
+	// Assert
+	assert.Equal(t, "test-app", response.App)
+	assert.Equal(t, supportRequest.App, response.App)
+}
+
+func TestSupportRequest_ToResponse_EmptyAppField(t *testing.T) {
+	// Arrange
+	supportRequest := &SupportRequest{
+		ID:          1,
+		Type:        SupportRequestTypeSupport,
+		Message:     "Test message",
+		Platform:    PlatformIOS,
+		AppVersion:  "1.0.0",
+		DeviceModel: "iPhone 13",
+		Status:      StatusNew,
+		App:         "", // Empty app
+		CreatedAt:   time.Now(),
+		UpdatedAt:   time.Now(),
+	}
+
+	// Act
+	response := supportRequest.ToResponse()
+
+	// Assert
+	assert.Equal(t, "", response.App)
+	assert.Equal(t, supportRequest.App, response.App)
 }

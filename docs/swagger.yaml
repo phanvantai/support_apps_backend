@@ -19,6 +19,10 @@ definitions:
   support-app-backend_internal_models.CreateSupportRequestRequest:
     description: Request payload for creating a new support request
     properties:
+      app:
+        description: Application name
+        example: my-awesome-app
+        type: string
       app_version:
         description: Application version
         example: 1.2.3
@@ -52,6 +56,7 @@ definitions:
         example: user@example.com
         type: string
     required:
+    - app
     - app_version
     - device_model
     - message

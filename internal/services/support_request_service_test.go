@@ -55,6 +55,7 @@ func TestSupportRequestService_CreateSupportRequest(t *testing.T) {
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 	}
 
 	mockRepo.On("Create", mock.AnythingOfType("*models.SupportRequest")).Return(nil).Run(func(args mock.Arguments) {
@@ -103,6 +104,7 @@ func TestSupportRequestService_CreateSupportRequest_RepositoryError(t *testing.T
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 	}
 
 	mockRepo.On("Create", mock.AnythingOfType("*models.SupportRequest")).Return(errors.New("database error"))
@@ -131,6 +133,7 @@ func TestSupportRequestService_GetSupportRequest(t *testing.T) {
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 		Status:      models.StatusNew,
 	}
 
@@ -194,6 +197,7 @@ func TestSupportRequestService_GetAllSupportRequests(t *testing.T) {
 			Platform:    models.PlatformIOS,
 			AppVersion:  "1.0.0",
 			DeviceModel: "iPhone 13",
+			App:         "test-app-1",
 			Status:      models.StatusNew,
 		},
 		{
@@ -203,6 +207,7 @@ func TestSupportRequestService_GetAllSupportRequests(t *testing.T) {
 			Platform:    models.PlatformAndroid,
 			AppVersion:  "1.0.1",
 			DeviceModel: "Samsung Galaxy",
+			App:         "test-app-2",
 			Status:      models.StatusNew,
 		},
 	}
@@ -323,6 +328,7 @@ func TestSupportRequestService_UpdateSupportRequest(t *testing.T) {
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 		Status:      models.StatusNew,
 	}
 
@@ -383,6 +389,7 @@ func TestSupportRequestService_UpdateSupportRequest_RepositoryError(t *testing.T
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 		Status:      models.StatusNew,
 	}
 

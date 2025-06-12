@@ -859,6 +859,7 @@ const docTemplate = `{
             "description": "Request payload for creating a new support request",
             "type": "object",
             "required": [
+                "app",
                 "app_version",
                 "device_model",
                 "message",
@@ -866,6 +867,11 @@ const docTemplate = `{
                 "type"
             ],
             "properties": {
+                "app": {
+                    "description": "Application name",
+                    "type": "string",
+                    "example": "my-awesome-app"
+                },
                 "app_version": {
                     "description": "Application version",
                     "type": "string",

@@ -67,6 +67,7 @@ func (suite *SupportRequestRepositoryTestSuite) TestCreate() {
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 		Status:      models.StatusNew,
 	}
 
@@ -95,6 +96,7 @@ func (suite *SupportRequestRepositoryTestSuite) TestGetByID() {
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 		Status:      models.StatusNew,
 	}
 

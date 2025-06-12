@@ -74,6 +74,7 @@ func TestSupportRequestHandler_CreateSupportRequest(t *testing.T) {
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 	}
 
 	response := &models.SupportRequestResponse{
@@ -84,6 +85,7 @@ func TestSupportRequestHandler_CreateSupportRequest(t *testing.T) {
 		Platform:    models.PlatformIOS,
 		AppVersion:  "1.0.0",
 		DeviceModel: "iPhone 13",
+		App:         "test-app",
 		Status:      models.StatusNew,
 	}
 
