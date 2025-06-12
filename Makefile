@@ -25,6 +25,7 @@ help:
 	@echo ""
 	@echo "🚂 Railway Deployment:"
 	@echo "  railway-prepare - Prepare for Railway deployment"
+	@echo "  railway-verify  - Verify Railway deployment readiness"
 	@echo ""
 	@echo "🧹 Cleanup:"
 	@echo "  clean         - Clean up build artifacts and containers"
@@ -133,23 +134,41 @@ migrate-status:
 # Prepare for Railway deployment
 railway-prepare:
 	@echo "🚂 Preparing for Railway deployment..."
+	@echo ""
 	@echo "📋 Pre-deployment checklist:"
-	@echo "  ✅ Dockerfile is present"
-	@echo "  ✅ Environment variables will be set in Railway dashboard:"
-	@echo "     - DATABASE_URL (Railway PostgreSQL)"
-	@echo "     - JWT_SECRET (generate with: openssl rand -hex 32)"
+	@echo "  ✅ Dockerfile optimized for Railway"
+	@echo "  ✅ DATABASE_URL support implemented"
+	@echo "  ✅ Health check endpoint available at /health"
+	@echo "  ✅ Non-root user configuration for security"
+	@echo "  ✅ Production-ready build optimizations"
+	@echo ""
+	@echo "🔧 Required Railway setup:"
+	@echo "  1. Create Railway project from GitHub repository"
+	@echo "  2. Add PostgreSQL service (generates DATABASE_URL automatically)"
+	@echo "  3. Set required environment variables:"
+	@echo "     - JWT_SECRET=\$$(openssl rand -hex 32)"
+	@echo "     - ENVIRONMENT=production"
 	@echo "     - GIN_MODE=release"
-	@echo "     - PORT (Railway will set automatically)"
 	@echo ""
-	@echo "🔧 Railway deployment steps:"
-	@echo "  1. Connect your GitHub repository to Railway"
-	@echo "  2. Add PostgreSQL service in Railway"
-	@echo "  3. Set environment variables in Railway dashboard"
-	@echo "  4. Deploy will happen automatically on git push"
+	@echo "📚 Railway will automatically:"
+	@echo "  - Build using Dockerfile"
+	@echo "  - Set PORT environment variable"
+	@echo "  - Provide DATABASE_URL from PostgreSQL service"
+	@echo "  - Enable SSL for database connections"
+	@echo "  - Run health checks on /health endpoint"
 	@echo ""
-	@echo "📚 Railway will use the Dockerfile to build and deploy"
+	@echo "🔍 Next steps:"
+	@echo "  1. Read RAILWAY_DEPLOY.md for detailed instructions"
+	@echo "  2. Generate JWT secret: openssl rand -hex 32"
+	@echo "  3. Push to GitHub and deploy to Railway"
+	@echo ""
 	@go mod tidy
-	@echo "✅ Dependencies cleaned up and ready for deployment"
+	@echo "✅ Dependencies cleaned up and ready for Railway deployment"
+
+# Verify Railway deployment readiness
+railway-verify:
+	@echo "🔍 Verifying Railway deployment readiness..."
+	@./scripts/railway_verify.sh
 
 # === DOCUMENTATION COMMANDS ===
 

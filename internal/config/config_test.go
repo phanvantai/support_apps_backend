@@ -194,6 +194,116 @@ func TestDatabaseConfig_GetDSN(t *testing.T) {
 	assert.Equal(t, expected, dsn)
 }
 
+func TestDatabaseConfig_GetDatabaseURL(t *testing.T) {
+	config := &DatabaseConfig{
+		Host:     "localhost",
+		Port:     5432,
+		User:     "testuser",
+		Password: "testpass",
+		DBName:   "testdb",
+		SSLMode:  "require",
+	}
+
+	url := config.GetDatabaseURL()
+	expected := "postgresql://testuser:testpass@localhost:5432/testdb?sslmode=require"
+	assert.Equal(t, expected, url)
+}
+
+func TestParseDatabaseURL_Success(t *testing.T) {
+	databaseURL := "postgresql://testuser:testpass@localhost:5432/testdb?sslmode=require"
+
+	config, err := parseDatabaseURL(databaseURL)
+	assert.NoError(t, err)
+	assert.Equal(t, "localhost", config.Host)
+	assert.Equal(t, 5432, config.Port)
+	assert.Equal(t, "testuser", config.User)
+	assert.Equal(t, "testpass", config.Password)
+	assert.Equal(t, "testdb", config.DBName)
+	assert.Equal(t, "require", config.SSLMode)
+}
+
+func TestParseDatabaseURL_DefaultPort(t *testing.T) {
+	databaseURL := "postgresql://testuser:testpass@localhost/testdb"
+
+	config, err := parseDatabaseURL(databaseURL)
+	assert.NoError(t, err)
+	assert.Equal(t, "localhost", config.Host)
+	assert.Equal(t, 5432, config.Port)         // Default port
+	assert.Equal(t, "require", config.SSLMode) // Default SSL mode
+}
+
+func TestParseDatabaseURL_InvalidURL(t *testing.T) {
+	tests := []struct {
+		name        string
+		databaseURL string
+		expectError string
+	}{
+		{
+			name:        "completely invalid URL",
+			databaseURL: "invalid-url",
+			expectError: "invalid DATABASE_URL scheme",
+		},
+		{
+			name:        "wrong scheme",
+			databaseURL: "mysql://user:pass@host:5432/db",
+			expectError: "invalid DATABASE_URL scheme",
+		},
+		{
+			name:        "missing host",
+			databaseURL: "postgresql://user:pass@:5432/db",
+			expectError: "missing host",
+		},
+		{
+			name:        "missing database name",
+			databaseURL: "postgresql://user:pass@localhost:5432/",
+			expectError: "missing database name",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			_, err := parseDatabaseURL(tt.databaseURL)
+			assert.Error(t, err)
+			assert.Contains(t, err.Error(), tt.expectError)
+		})
+	}
+}
+
+func TestParseDatabaseURL_InvalidPort(t *testing.T) {
+	databaseURL := "postgresql://testuser:testpass@localhost:invalid/testdb"
+
+	_, err := parseDatabaseURL(databaseURL)
+	assert.Error(t, err)
+	// The error comes from url.Parse first, so it's actually a parse error
+	assert.Contains(t, err.Error(), "invalid DATABASE_URL format")
+}
+
+func TestLoad_WithDatabaseURL(t *testing.T) {
+	// Clear individual DB environment variables
+	os.Unsetenv("DB_HOST")
+	os.Unsetenv("DB_PORT")
+	os.Unsetenv("DB_USER")
+	os.Unsetenv("DB_PASSWORD")
+	os.Unsetenv("DB_NAME")
+	os.Unsetenv("DB_SSLMODE")
+
+	// Set DATABASE_URL and JWT_SECRET
+	os.Setenv("DATABASE_URL", "postgresql://railwayuser:railwaypass@railway.host:5432/railwaydb?sslmode=require")
+	os.Setenv("JWT_SECRET", "railway-jwt-secret-key-that-is-long-enough-for-validation")
+	defer os.Unsetenv("DATABASE_URL")
+	defer os.Unsetenv("JWT_SECRET")
+
+	config, err := Load()
+	require.NoError(t, err)
+
+	assert.Equal(t, "railway.host", config.Database.Host)
+	assert.Equal(t, 5432, config.Database.Port)
+	assert.Equal(t, "railwayuser", config.Database.User)
+	assert.Equal(t, "railwaypass", config.Database.Password)
+	assert.Equal(t, "railwaydb", config.Database.DBName)
+	assert.Equal(t, "require", config.Database.SSLMode)
+}
+
 func TestGetEnv_WithValue(t *testing.T) {
 	os.Setenv("TEST_ENV", "test_value")
 	defer os.Unsetenv("TEST_ENV")
