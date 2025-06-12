@@ -65,7 +65,7 @@ func TestValidateConfig_ProductionInsecureJWT(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(config)
+	err := validateConfig(config, false)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "JWT secret is insecure")
 }
@@ -80,7 +80,7 @@ func TestValidateConfig_ShortJWT(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(config)
+	err := validateConfig(config, false)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "JWT secret is insecure")
 }
@@ -100,7 +100,7 @@ func TestValidateConfig_ProductionInsecureDatabase(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(config)
+	err := validateConfig(config, false) // Using individual env vars, not DATABASE_URL
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "database password is insecure")
 }
@@ -120,7 +120,7 @@ func TestValidateConfig_ProductionSSLDisabled(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(config)
+	err := validateConfig(config, false)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "SSL must be enabled")
 }
@@ -140,7 +140,7 @@ func TestValidateConfig_ProductionDefaultUser(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(config)
+	err := validateConfig(config, false)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "default database user 'postgres'")
 }
@@ -155,7 +155,7 @@ func TestValidateConfig_InvalidEnvironment(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(config)
+	err := validateConfig(config, false)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "invalid environment")
 }
@@ -175,7 +175,7 @@ func TestValidateConfig_Success(t *testing.T) {
 		},
 	}
 
-	err := validateConfig(config)
+	err := validateConfig(config, false)
 	assert.NoError(t, err)
 }
 
@@ -302,6 +302,32 @@ func TestLoad_WithDatabaseURL(t *testing.T) {
 	assert.Equal(t, "railwaypass", config.Database.Password)
 	assert.Equal(t, "railwaydb", config.Database.DBName)
 	assert.Equal(t, "require", config.Database.SSLMode)
+}
+
+func TestValidateConfig_WithDatabaseURL_Production(t *testing.T) {
+	// Test that DATABASE_URL bypasses individual credential validation
+	config := &Config{
+		JWT: JWTConfig{
+			SecretKey: "this-is-a-very-secure-jwt-secret-key-that-is-at-least-32-characters-long",
+		},
+		Database: DatabaseConfig{
+			Password: "short",    // This would normally fail validation
+			User:     "postgres", // This would normally fail validation
+			SSLMode:  "require",
+		},
+		Server: ServerConfig{
+			Environment: "production",
+		},
+	}
+
+	// With usingDatabaseURL=true, validation should pass despite short password and default user
+	err := validateConfig(config, true)
+	assert.NoError(t, err)
+
+	// With usingDatabaseURL=false, validation should fail
+	err = validateConfig(config, false)
+	assert.Error(t, err)
+	assert.Contains(t, err.Error(), "database password is insecure")
 }
 
 func TestGetEnv_WithValue(t *testing.T) {

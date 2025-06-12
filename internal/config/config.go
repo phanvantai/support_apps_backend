@@ -46,6 +46,7 @@ func Load() (*Config, error) {
 	_ = godotenv.Load()
 
 	var databaseConfig DatabaseConfig
+	var usingDatabaseURL bool
 
 	// Check if DATABASE_URL is provided (Railway style)
 	if databaseURL := os.Getenv("DATABASE_URL"); databaseURL != "" {
@@ -54,6 +55,7 @@ func Load() (*Config, error) {
 		if err != nil {
 			return nil, fmt.Errorf("failed to parse DATABASE_URL: %w", err)
 		}
+		usingDatabaseURL = true
 	} else {
 		// Use individual environment variables (development style)
 		databaseConfig = DatabaseConfig{
@@ -64,6 +66,7 @@ func Load() (*Config, error) {
 			DBName:   getEnv("DB_NAME", "support_app"),
 			SSLMode:  getEnv("DB_SSLMODE", "disable"),
 		}
+		usingDatabaseURL = false
 	}
 
 	config := &Config{
@@ -80,7 +83,7 @@ func Load() (*Config, error) {
 	}
 
 	// Validate configuration for security
-	if err := validateConfig(config); err != nil {
+	if err := validateConfig(config, usingDatabaseURL); err != nil {
 		return nil, fmt.Errorf("configuration validation failed: %w", err)
 	}
 
@@ -88,7 +91,7 @@ func Load() (*Config, error) {
 }
 
 // validateConfig validates the configuration for security issues
-func validateConfig(config *Config) error {
+func validateConfig(config *Config, usingDatabaseURL bool) error {
 	// Validate JWT secret
 	if config.JWT.SecretKey == "your-secret-key-change-in-production" ||
 		config.JWT.SecretKey == "your-jwt-secret-key-change-this" ||
@@ -96,20 +99,24 @@ func validateConfig(config *Config) error {
 		return fmt.Errorf("JWT secret is insecure: must be at least 32 characters and not use default values")
 	}
 
-	// Validate database password in production
+	// Validate database configuration in production
 	if config.Server.Environment == "production" {
-		if config.Database.Password == "password" || len(config.Database.Password) < 12 {
-			return fmt.Errorf("database password is insecure for production: must be at least 12 characters and not use default values")
+		// If using DATABASE_URL (Railway/cloud deployment), trust the provider's security
+		if !usingDatabaseURL {
+			// Only validate individual env vars for manual configuration
+			if config.Database.Password == "password" || len(config.Database.Password) < 12 {
+				return fmt.Errorf("database password is insecure for production: must be at least 12 characters and not use default values")
+			}
+
+			// Check for default database user
+			if config.Database.User == "postgres" {
+				return fmt.Errorf("default database user 'postgres' should not be used in production")
+			}
 		}
 
-		// Ensure SSL is enabled in production
+		// Always ensure SSL is enabled in production (regardless of DATABASE_URL)
 		if config.Database.SSLMode == "disable" {
 			return fmt.Errorf("SSL must be enabled for production database connections")
-		}
-
-		// Check for default database user
-		if config.Database.User == "postgres" {
-			return fmt.Errorf("default database user 'postgres' should not be used in production")
 		}
 	}
 
