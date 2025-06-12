@@ -29,6 +29,7 @@ BEGIN
 END;
 $$ language 'plpgsql';
 
+DROP TRIGGER IF EXISTS update_support_requests_updated_at ON support_requests;
 CREATE TRIGGER update_support_requests_updated_at 
     BEFORE UPDATE ON support_requests 
     FOR EACH ROW 

@@ -46,11 +46,51 @@ internal/
 - Add godoc comments for public functions
 - Never log sensitive data
 
-### 6. Testing Commands
+### 6. Docker Environment Management
+- **Reset Environment**: `make dev-down && make dev-up` to reset containers and data
+- **Clean Reset**: Stop containers, remove volumes, rebuild from scratch
+- **Troubleshooting**: Always check `make migrate-status` if database issues occur
+- **Logs**: Use `docker-compose logs [service]` to check container logs when needed
+
+### 7. Development Commands (Always Use Makefile)
 ```bash
+# Testing
 make test              # Run all tests
-make test-coverage     # Run with coverage
-go test -v ./internal/handlers -run TestSpecific
+make test-coverage     # Run with coverage report
+make integration-test  # Run integration tests
+
+# Development Environment
+make dev-up           # Start development environment (PostgreSQL + migrations + seeding)
+make dev-down         # Stop development environment
+make run              # Run the application locally
+
+# Database Management
+make migrate-up       # Apply database migrations
+make migrate-down     # Rollback database migrations
+make migrate-status   # Check migration status
+make seed-db          # Seed database with sample data
+
+# Code Quality
+make fmt              # Format code
+make lint             # Run linter
+make security         # Run security checks
+
+# Docker Operations
+make docker-build     # Build Docker images
+make docker-up        # Start with Docker Compose
+make docker-down      # Stop Docker containers
+
+# Utilities
+make env-setup        # Setup environment files
+make env-generate-jwt # Generate secure JWT secret
+make deps             # Download dependencies
 ```
+
+### 8. Command Usage Rules
+- **ALWAYS use Makefile commands** instead of direct Go/Docker commands
+- Use `make dev-up` for local development instead of `docker-compose up`
+- Use `make test` instead of `go test`
+- Use `make migrate-up` instead of direct migration tools
+- Makefile ensures consistent environment and proper sequencing
 
 **Remember**: Write tests first, keep them focused, test both happy path and error scenarios.
