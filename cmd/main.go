@@ -162,6 +162,18 @@ func (app *Application) setupRouter() error {
 // Run starts the HTTP server
 func (app *Application) Run() error {
 	log.Printf("Starting server on port %s", app.Config.Server.Port)
+
+	// Log Swagger documentation URL
+	var swaggerURL string
+	if app.Config.Server.PublicDomain != "" && app.Config.Server.PublicDomain != "localhost:"+app.Config.Server.Port {
+		// Railway deployment or custom domain
+		swaggerURL = fmt.Sprintf("https://%s/swagger/index.html", app.Config.Server.PublicDomain)
+	} else {
+		// Local development
+		swaggerURL = fmt.Sprintf("http://localhost:%s/swagger/index.html", app.Config.Server.Port)
+	}
+	log.Printf("📖 Swagger documentation available at: %s", swaggerURL)
+
 	return app.Router.Run(":" + app.Config.Server.Port)
 }
 
@@ -234,7 +246,12 @@ func setupRouter(cfg *config.Config, supportHandler *handlers.SupportRequestHand
 	})
 
 	// Initialize Swagger docs
-	docs.SwaggerInfo.Host = "localhost:" + cfg.Server.Port
+	if cfg.Server.PublicDomain != "" {
+		docs.SwaggerInfo.Host = cfg.Server.PublicDomain
+	} else {
+		// Fallback for Railway during initial deployment
+		docs.SwaggerInfo.Host = "localhost:" + cfg.Server.Port
+	}
 
 	// Swagger endpoint
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))

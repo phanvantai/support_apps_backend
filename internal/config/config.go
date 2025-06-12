@@ -29,10 +29,11 @@ type DatabaseConfig struct {
 
 // ServerConfig holds server configuration
 type ServerConfig struct {
-	Port        string
-	Environment string
-	RateLimit   float64
-	RateBurst   int
+	Port         string
+	Environment  string
+	RateLimit    float64
+	RateBurst    int
+	PublicDomain string // For Railway deployment or custom domain
 }
 
 // JWTConfig holds JWT configuration
@@ -72,10 +73,11 @@ func Load() (*Config, error) {
 	config := &Config{
 		Database: databaseConfig,
 		Server: ServerConfig{
-			Port:        getEnv("PORT", "8080"),
-			Environment: getEnv("ENVIRONMENT", "development"),
-			RateLimit:   getEnvAsFloat("RATE_LIMIT", 10.0), // 10 requests per second
-			RateBurst:   getEnvAsInt("RATE_BURST", 20),     // burst of 20 requests
+			Port:         getEnv("PORT", "8080"),
+			Environment:  getEnv("ENVIRONMENT", "development"),
+			RateLimit:    getEnvAsFloat("RATE_LIMIT", 10.0), // 10 requests per second
+			RateBurst:    getEnvAsInt("RATE_BURST", 20),     // burst of 20 requests
+			PublicDomain: getPublicDomain(),
 		},
 		JWT: JWTConfig{
 			SecretKey: getEnv("JWT_SECRET", "your-secret-key-change-in-production"),
@@ -175,6 +177,31 @@ func getEnvAsFloat(key string, fallback float64) float64 {
 		}
 	}
 	return fallback
+}
+
+// getPublicDomain determines the public domain for the application
+// Returns Railway domain if deployed there, otherwise localhost for development
+func getPublicDomain() string {
+	// Check for Railway-specific environment variables
+	if railwayPublicDomain := os.Getenv("RAILWAY_PUBLIC_DOMAIN"); railwayPublicDomain != "" {
+		return railwayPublicDomain
+	}
+
+	// Check for generic public domain override
+	if publicDomain := os.Getenv("PUBLIC_DOMAIN"); publicDomain != "" {
+		return publicDomain
+	}
+
+	// Check if we're running on Railway (they set specific env vars)
+	if os.Getenv("RAILWAY_ENVIRONMENT") != "" || os.Getenv("RAILWAY_PROJECT_ID") != "" {
+		// On Railway but no public domain set yet - this happens during initial deployment
+		// Return empty string so we can handle it gracefully
+		return ""
+	}
+
+	// Default to localhost for local development
+	port := getEnv("PORT", "8080")
+	return "localhost:" + port
 }
 
 // parseDatabaseURL parses a DATABASE_URL environment variable (Railway style)
