@@ -104,11 +104,13 @@ func TestSupportRequestType_Constants_StringValues(t *testing.T) {
 func TestPlatform_Constants_ValidValues(t *testing.T) {
 	assert.Equal(t, Platform("iOS"), PlatformIOS)
 	assert.Equal(t, Platform("Android"), PlatformAndroid)
+	assert.Equal(t, Platform("Web"), PlatformWeb)
 }
 
 func TestPlatform_Constants_StringValues(t *testing.T) {
 	assert.Equal(t, "iOS", string(PlatformIOS))
 	assert.Equal(t, "Android", string(PlatformAndroid))
+	assert.Equal(t, "Web", string(PlatformWeb))
 }
 
 func TestStatus_Constants_ValidValues(t *testing.T) {

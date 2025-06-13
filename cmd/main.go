@@ -233,7 +233,6 @@ func setupRouter(cfg *config.Config, supportHandler *handlers.SupportRequestHand
 
 	// Add CORS middleware
 	router.Use(func(c *gin.Context) {
-		origin := c.Request.Header.Get("Origin")
 		
 		// Set CORS headers
 		c.Header("Access-Control-Allow-Origin", "*")

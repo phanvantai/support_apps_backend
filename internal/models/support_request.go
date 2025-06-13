@@ -10,16 +10,19 @@ import (
 type SupportRequestType string
 
 const (
-	SupportRequestTypeSupport  SupportRequestType = "support"
-	SupportRequestTypeFeedback SupportRequestType = "feedback"
+	SupportRequestTypeSupport        SupportRequestType = "support"
+	SupportRequestTypeFeedback       SupportRequestType = "feedback"
+	SupportRequestTypeBugReport      SupportRequestType = "bug_report"
+	SupportRequestTypeFeatureRequest SupportRequestType = "feature_request"
 )
 
-// Platform represents the mobile platform
+// Platform represents the platform
 type Platform string
 
 const (
 	PlatformIOS     Platform = "iOS"
 	PlatformAndroid Platform = "Android"
+	PlatformWeb     Platform = "Web"
 )
 
 // Status represents the request status
@@ -34,10 +37,10 @@ const (
 // SupportRequest represents a support ticket or feedback request
 type SupportRequest struct {
 	ID          uint               `json:"id" gorm:"primaryKey"`
-	Type        SupportRequestType `json:"type" gorm:"not null" binding:"required,oneof=support feedback"`
+	Type        SupportRequestType `json:"type" gorm:"not null" binding:"required,oneof=support feedback bug_report feature_request"`
 	UserEmail   *string            `json:"user_email,omitempty" gorm:"type:varchar(255)"`
 	Message     string             `json:"message" gorm:"not null;type:text" binding:"required"`
-	Platform    Platform           `json:"platform" gorm:"not null" binding:"required,oneof=iOS Android"`
+	Platform    Platform           `json:"platform" gorm:"not null" binding:"required,oneof=iOS Android Web"`
 	AppVersion  string             `json:"app_version" gorm:"not null" binding:"required"`
 	DeviceModel string             `json:"device_model" gorm:"not null" binding:"required"`
 	App         string             `json:"app" gorm:"not null" binding:"required"`
@@ -51,10 +54,10 @@ type SupportRequest struct {
 // CreateSupportRequestRequest represents the payload for creating a support request
 // @Description Request payload for creating a new support request
 type CreateSupportRequestRequest struct {
-	Type        SupportRequestType `json:"type" binding:"required,oneof=support feedback" example:"support"`               // Type of request (support or feedback)
+	Type        SupportRequestType `json:"type" binding:"required,oneof=support feedback bug_report feature_request" example:"support"`               // Type of request (support, feedback, bug_report, or feature_request)
 	UserEmail   *string            `json:"user_email,omitempty" example:"user@example.com"`                                // Optional user email
 	Message     string             `json:"message" binding:"required" example:"I'm having trouble with the login feature"` // Support request message
-	Platform    Platform           `json:"platform" binding:"required,oneof=iOS Android" example:"iOS"`                    // Mobile platform
+	Platform    Platform           `json:"platform" binding:"required,oneof=iOS Android Web" example:"iOS"`                    // Platform (iOS, Android, or Web)
 	AppVersion  string             `json:"app_version" binding:"required" example:"1.2.3"`                                 // Application version
 	DeviceModel string             `json:"device_model" binding:"required" example:"iPhone 14 Pro"`                        // Device model
 	App         string             `json:"app" binding:"required" example:"my-awesome-app"`                                // Application name
@@ -74,7 +77,7 @@ type SupportRequestResponse struct {
 	Type        SupportRequestType `json:"type" example:"support"`                                          // Type of request
 	UserEmail   *string            `json:"user_email,omitempty" example:"user@example.com"`                 // User email (optional)
 	Message     string             `json:"message" example:"I'm having trouble with the login feature"`     // Support request message
-	Platform    Platform           `json:"platform" example:"iOS"`                                          // Mobile platform
+	Platform    Platform           `json:"platform" example:"iOS"`                                          // Platform (iOS, Android, or Web)
 	AppVersion  string             `json:"app_version" example:"1.2.3"`                                     // Application version
 	DeviceModel string             `json:"device_model" example:"iPhone 14 Pro"`                            // Device model
 	App         string             `json:"app" example:"my-awesome-app"`                                    // Application name
