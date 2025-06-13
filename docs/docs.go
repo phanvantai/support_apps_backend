@@ -44,7 +44,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.LoginRequest"
+                            "$ref": "#/definitions/support-app-backend_internal_models.LoginRequest"
                         }
                     }
                 ],
@@ -141,7 +141,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.ChangePasswordRequest"
+                            "$ref": "#/definitions/support-app-backend_internal_models.ChangePasswordRequest"
                         }
                     }
                 ],
@@ -259,7 +259,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateUserRequest"
+                            "$ref": "#/definitions/support-app-backend_internal_models.CreateUserRequest"
                         }
                     }
                 ],
@@ -458,7 +458,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateUserRequest"
+                            "$ref": "#/definitions/support-app-backend_internal_models.UpdateUserRequest"
                         }
                     }
                 ],
@@ -521,7 +521,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.CreateSupportRequestRequest"
+                            "$ref": "#/definitions/support-app-backend_internal_models.CreateSupportRequestRequest"
                         }
                     }
                 ],
@@ -552,12 +552,7 @@ const docTemplate = `{
         },
         "/support-requests": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get paginated list of all support requests (requires admin authentication)",
+                "description": "Get paginated list of all support requests (public endpoint)",
                 "consumes": [
                     "application/json"
                 ],
@@ -567,7 +562,7 @@ const docTemplate = `{
                 "tags": [
                     "Support Requests"
                 ],
-                "summary": "Get all support requests (Admin only)",
+                "summary": "Get all support requests",
                 "parameters": [
                     {
                         "type": "integer",
@@ -591,32 +586,13 @@ const docTemplate = `{
                             "type": "object",
                             "additionalProperties": true
                         }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden - Admin access required",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
                     }
                 }
             }
         },
         "/support-requests/{id}": {
             "get": {
-                "security": [
-                    {
-                        "BearerAuth": []
-                    }
-                ],
-                "description": "Get support request details by ID (requires admin authentication)",
+                "description": "Get support request details by ID (public endpoint)",
                 "consumes": [
                     "application/json"
                 ],
@@ -626,7 +602,7 @@ const docTemplate = `{
                 "tags": [
                     "Support Requests"
                 ],
-                "summary": "Get support request by ID (Admin only)",
+                "summary": "Get support request by ID",
                 "parameters": [
                     {
                         "type": "integer",
@@ -646,20 +622,6 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "Invalid ID format",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "type": "object",
-                            "additionalProperties": true
-                        }
-                    },
-                    "403": {
-                        "description": "Forbidden - Admin access required",
                         "schema": {
                             "type": "object",
                             "additionalProperties": true
@@ -765,7 +727,7 @@ const docTemplate = `{
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/models.UpdateSupportRequestRequest"
+                            "$ref": "#/definitions/support-app-backend_internal_models.UpdateSupportRequestRequest"
                         }
                     }
                 ],
@@ -810,7 +772,7 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "models.ChangePasswordRequest": {
+        "support-app-backend_internal_models.ChangePasswordRequest": {
             "description": "Request payload for changing user password",
             "type": "object",
             "required": [
@@ -831,7 +793,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateSupportRequestRequest": {
+        "support-app-backend_internal_models.CreateSupportRequestRequest": {
             "description": "Request payload for creating a new support request",
             "type": "object",
             "required": [
@@ -864,27 +826,30 @@ const docTemplate = `{
                     "example": "I'm having trouble with the login feature"
                 },
                 "platform": {
-                    "description": "Mobile platform",
+                    "description": "Platform (iOS, Android, or Web)",
                     "enum": [
                         "iOS",
-                        "Android"
+                        "Android",
+                        "Web"
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Platform"
+                            "$ref": "#/definitions/support-app-backend_internal_models.Platform"
                         }
                     ],
                     "example": "iOS"
                 },
                 "type": {
-                    "description": "Type of request (support or feedback)",
+                    "description": "Type of request (support, feedback, bug_report, or feature_request)",
                     "enum": [
                         "support",
-                        "feedback"
+                        "feedback",
+                        "bug_report",
+                        "feature_request"
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.SupportRequestType"
+                            "$ref": "#/definitions/support-app-backend_internal_models.SupportRequestType"
                         }
                     ],
                     "example": "support"
@@ -896,7 +861,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.CreateUserRequest": {
+        "support-app-backend_internal_models.CreateUserRequest": {
             "description": "Request payload for creating a new user",
             "type": "object",
             "required": [
@@ -925,7 +890,7 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.UserRole"
+                            "$ref": "#/definitions/support-app-backend_internal_models.UserRole"
                         }
                     ],
                     "example": "user"
@@ -939,7 +904,7 @@ const docTemplate = `{
                 }
             }
         },
-        "models.LoginRequest": {
+        "support-app-backend_internal_models.LoginRequest": {
             "description": "User login request",
             "type": "object",
             "required": [
@@ -959,18 +924,20 @@ const docTemplate = `{
                 }
             }
         },
-        "models.Platform": {
+        "support-app-backend_internal_models.Platform": {
             "type": "string",
             "enum": [
                 "iOS",
-                "Android"
+                "Android",
+                "Web"
             ],
             "x-enum-varnames": [
                 "PlatformIOS",
-                "PlatformAndroid"
+                "PlatformAndroid",
+                "PlatformWeb"
             ]
         },
-        "models.Status": {
+        "support-app-backend_internal_models.Status": {
             "type": "string",
             "enum": [
                 "new",
@@ -983,18 +950,22 @@ const docTemplate = `{
                 "StatusResolved"
             ]
         },
-        "models.SupportRequestType": {
+        "support-app-backend_internal_models.SupportRequestType": {
             "type": "string",
             "enum": [
                 "support",
-                "feedback"
+                "feedback",
+                "bug_report",
+                "feature_request"
             ],
             "x-enum-varnames": [
                 "SupportRequestTypeSupport",
-                "SupportRequestTypeFeedback"
+                "SupportRequestTypeFeedback",
+                "SupportRequestTypeBugReport",
+                "SupportRequestTypeFeatureRequest"
             ]
         },
-        "models.UpdateSupportRequestRequest": {
+        "support-app-backend_internal_models.UpdateSupportRequestRequest": {
             "description": "Request payload for updating support request status and admin notes",
             "type": "object",
             "properties": {
@@ -1012,14 +983,14 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.Status"
+                            "$ref": "#/definitions/support-app-backend_internal_models.Status"
                         }
                     ],
                     "example": "in_progress"
                 }
             }
         },
-        "models.UpdateUserRequest": {
+        "support-app-backend_internal_models.UpdateUserRequest": {
             "description": "Request payload for updating user information",
             "type": "object",
             "properties": {
@@ -1041,14 +1012,14 @@ const docTemplate = `{
                     ],
                     "allOf": [
                         {
-                            "$ref": "#/definitions/models.UserRole"
+                            "$ref": "#/definitions/support-app-backend_internal_models.UserRole"
                         }
                     ],
                     "example": "admin"
                 }
             }
         },
-        "models.UserRole": {
+        "support-app-backend_internal_models.UserRole": {
             "type": "string",
             "enum": [
                 "admin",

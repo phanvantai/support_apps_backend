@@ -1,6 +1,6 @@
 basePath: /api/v1
 definitions:
-  models.ChangePasswordRequest:
+  support-app-backend_internal_models.ChangePasswordRequest:
     description: Request payload for changing user password
     properties:
       current_password:
@@ -16,7 +16,7 @@ definitions:
     - current_password
     - new_password
     type: object
-  models.CreateSupportRequestRequest:
+  support-app-backend_internal_models.CreateSupportRequestRequest:
     description: Request payload for creating a new support request
     properties:
       app:
@@ -37,19 +37,22 @@ definitions:
         type: string
       platform:
         allOf:
-        - $ref: '#/definitions/models.Platform'
-        description: Mobile platform
+        - $ref: '#/definitions/support-app-backend_internal_models.Platform'
+        description: Platform (iOS, Android, or Web)
         enum:
         - iOS
         - Android
+        - Web
         example: iOS
       type:
         allOf:
-        - $ref: '#/definitions/models.SupportRequestType'
-        description: Type of request (support or feedback)
+        - $ref: '#/definitions/support-app-backend_internal_models.SupportRequestType'
+        description: Type of request (support, feedback, bug_report, or feature_request)
         enum:
         - support
         - feedback
+        - bug_report
+        - feature_request
         example: support
       user_email:
         description: Optional user email
@@ -63,7 +66,7 @@ definitions:
     - platform
     - type
     type: object
-  models.CreateUserRequest:
+  support-app-backend_internal_models.CreateUserRequest:
     description: Request payload for creating a new user
     properties:
       email:
@@ -77,7 +80,7 @@ definitions:
         type: string
       role:
         allOf:
-        - $ref: '#/definitions/models.UserRole'
+        - $ref: '#/definitions/support-app-backend_internal_models.UserRole'
         description: User role (admin or user)
         enum:
         - admin
@@ -95,7 +98,7 @@ definitions:
     - role
     - username
     type: object
-  models.LoginRequest:
+  support-app-backend_internal_models.LoginRequest:
     description: User login request
     properties:
       password:
@@ -110,15 +113,17 @@ definitions:
     - password
     - username
     type: object
-  models.Platform:
+  support-app-backend_internal_models.Platform:
     enum:
     - iOS
     - Android
+    - Web
     type: string
     x-enum-varnames:
     - PlatformIOS
     - PlatformAndroid
-  models.Status:
+    - PlatformWeb
+  support-app-backend_internal_models.Status:
     enum:
     - new
     - in_progress
@@ -128,15 +133,19 @@ definitions:
     - StatusNew
     - StatusInProgress
     - StatusResolved
-  models.SupportRequestType:
+  support-app-backend_internal_models.SupportRequestType:
     enum:
     - support
     - feedback
+    - bug_report
+    - feature_request
     type: string
     x-enum-varnames:
     - SupportRequestTypeSupport
     - SupportRequestTypeFeedback
-  models.UpdateSupportRequestRequest:
+    - SupportRequestTypeBugReport
+    - SupportRequestTypeFeatureRequest
+  support-app-backend_internal_models.UpdateSupportRequestRequest:
     description: Request payload for updating support request status and admin notes
     properties:
       admin_notes:
@@ -145,7 +154,7 @@ definitions:
         type: string
       status:
         allOf:
-        - $ref: '#/definitions/models.Status'
+        - $ref: '#/definitions/support-app-backend_internal_models.Status'
         description: New status
         enum:
         - new
@@ -153,7 +162,7 @@ definitions:
         - resolved
         example: in_progress
     type: object
-  models.UpdateUserRequest:
+  support-app-backend_internal_models.UpdateUserRequest:
     description: Request payload for updating user information
     properties:
       email:
@@ -166,14 +175,14 @@ definitions:
         type: boolean
       role:
         allOf:
-        - $ref: '#/definitions/models.UserRole'
+        - $ref: '#/definitions/support-app-backend_internal_models.UserRole'
         description: New user role
         enum:
         - admin
         - user
         example: admin
     type: object
-  models.UserRole:
+  support-app-backend_internal_models.UserRole:
     enum:
     - admin
     - user
@@ -207,7 +216,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.LoginRequest'
+          $ref: '#/definitions/support-app-backend_internal_models.LoginRequest'
       produces:
       - application/json
       responses:
@@ -268,7 +277,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.ChangePasswordRequest'
+          $ref: '#/definitions/support-app-backend_internal_models.ChangePasswordRequest'
       produces:
       - application/json
       responses:
@@ -346,7 +355,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.CreateUserRequest'
+          $ref: '#/definitions/support-app-backend_internal_models.CreateUserRequest'
       produces:
       - application/json
       responses:
@@ -479,7 +488,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.UpdateUserRequest'
+          $ref: '#/definitions/support-app-backend_internal_models.UpdateUserRequest'
       produces:
       - application/json
       responses:
@@ -524,7 +533,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.CreateSupportRequestRequest'
+          $ref: '#/definitions/support-app-backend_internal_models.CreateSupportRequestRequest'
       produces:
       - application/json
       responses:
@@ -550,7 +559,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get paginated list of all support requests (requires admin authentication)
+      description: Get paginated list of all support requests (public endpoint)
       parameters:
       - default: 1
         description: Page number
@@ -570,19 +579,7 @@ paths:
           schema:
             additionalProperties: true
             type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-        "403":
-          description: Forbidden - Admin access required
-          schema:
-            additionalProperties: true
-            type: object
-      security:
-      - BearerAuth: []
-      summary: Get all support requests (Admin only)
+      summary: Get all support requests
       tags:
       - Support Requests
   /support-requests/{id}:
@@ -629,7 +626,7 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get support request details by ID (requires admin authentication)
+      description: Get support request details by ID (public endpoint)
       parameters:
       - description: Support Request ID
         in: path
@@ -649,24 +646,12 @@ paths:
           schema:
             additionalProperties: true
             type: object
-        "401":
-          description: Unauthorized
-          schema:
-            additionalProperties: true
-            type: object
-        "403":
-          description: Forbidden - Admin access required
-          schema:
-            additionalProperties: true
-            type: object
         "404":
           description: Support request not found
           schema:
             additionalProperties: true
             type: object
-      security:
-      - BearerAuth: []
-      summary: Get support request by ID (Admin only)
+      summary: Get support request by ID
       tags:
       - Support Requests
     patch:
@@ -684,7 +669,7 @@ paths:
         name: request
         required: true
         schema:
-          $ref: '#/definitions/models.UpdateSupportRequestRequest'
+          $ref: '#/definitions/support-app-backend_internal_models.UpdateSupportRequestRequest'
       produces:
       - application/json
       responses:
