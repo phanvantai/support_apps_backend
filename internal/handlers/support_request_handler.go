@@ -58,17 +58,14 @@ func (h *SupportRequestHandler) CreateSupportRequest(c *gin.Context) {
 }
 
 // GetSupportRequest handles GET /api/v1/support-requests/:id
-// @Summary Get support request by ID (Admin only)
-// @Description Get support request details by ID (requires admin authentication)
+// @Summary Get support request by ID
+// @Description Get support request details by ID (public endpoint)
 // @Tags Support Requests
 // @Accept json
 // @Produce json
-// @Security BearerAuth
 // @Param id path int true "Support Request ID"
 // @Success 200 {object} map[string]interface{} "Support request details"
 // @Failure 400 {object} map[string]interface{} "Invalid ID format"
-// @Failure 401 {object} map[string]interface{} "Unauthorized"
-// @Failure 403 {object} map[string]interface{} "Forbidden - Admin access required"
 // @Failure 404 {object} map[string]interface{} "Support request not found"
 // @Router /support-requests/{id} [get]
 func (h *SupportRequestHandler) GetSupportRequest(c *gin.Context) {
@@ -93,17 +90,14 @@ func (h *SupportRequestHandler) GetSupportRequest(c *gin.Context) {
 }
 
 // GetAllSupportRequests handles GET /api/v1/support-requests
-// @Summary Get all support requests (Admin only)
-// @Description Get paginated list of all support requests (requires admin authentication)
+// @Summary Get all support requests
+// @Description Get paginated list of all support requests (public endpoint)
 // @Tags Support Requests
 // @Accept json
 // @Produce json
-// @Security BearerAuth
 // @Param page query int false "Page number" default(1)
 // @Param page_size query int false "Page size" default(20)
 // @Success 200 {object} map[string]interface{} "Support requests list"
-// @Failure 401 {object} map[string]interface{} "Unauthorized"
-// @Failure 403 {object} map[string]interface{} "Forbidden - Admin access required"
 // @Router /support-requests [get]
 func (h *SupportRequestHandler) GetAllSupportRequests(c *gin.Context) {
 	// Parse pagination parameters

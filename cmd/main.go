@@ -271,6 +271,10 @@ func setupRouter(cfg *config.Config, supportHandler *handlers.SupportRequestHand
 		// Public endpoints (with rate limiting)
 		rateLimiter := middleware.NewRateLimitMiddleware(cfg.Server.RateLimit, cfg.Server.RateBurst)
 		v1.POST("/support-request", rateLimiter.Middleware(), supportHandler.CreateSupportRequest)
+		
+		// Public support request viewing endpoints
+		v1.GET("/support-requests", supportHandler.GetAllSupportRequests)
+		v1.GET("/support-requests/:id", supportHandler.GetSupportRequest)
 
 		// Authentication endpoints
 		auth := v1.Group("/auth")
@@ -302,8 +306,6 @@ func setupRouter(cfg *config.Config, supportHandler *handlers.SupportRequestHand
 		admin.Use(middleware.AuthMiddleware(authService))
 		admin.Use(middleware.AdminOnlyMiddleware())
 		{
-			admin.GET("", supportHandler.GetAllSupportRequests)
-			admin.GET("/:id", supportHandler.GetSupportRequest)
 			admin.PATCH("/:id", supportHandler.UpdateSupportRequest)
 			admin.DELETE("/:id", supportHandler.DeleteSupportRequest)
 		}
