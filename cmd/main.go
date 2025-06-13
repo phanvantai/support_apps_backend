@@ -233,10 +233,17 @@ func setupRouter(cfg *config.Config, supportHandler *handlers.SupportRequestHand
 
 	// Add CORS middleware
 	router.Use(func(c *gin.Context) {
+		origin := c.Request.Header.Get("Origin")
+		
+		// Set CORS headers
 		c.Header("Access-Control-Allow-Origin", "*")
 		c.Header("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
-		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
+		c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization, Accept, X-Requested-With")
+		c.Header("Access-Control-Expose-Headers", "Content-Length")
+		c.Header("Access-Control-Allow-Credentials", "false")
+		c.Header("Access-Control-Max-Age", "86400")
 
+		// Handle preflight OPTIONS request
 		if c.Request.Method == "OPTIONS" {
 			c.AbortWithStatus(204)
 			return

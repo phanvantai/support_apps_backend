@@ -36,6 +36,8 @@ func (h *SupportRequestHandler) CreateSupportRequest(c *gin.Context) {
 	var req models.CreateSupportRequestRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
+		// Log the validation error for debugging
+		c.Header("X-Validation-Error", err.Error())
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
@@ -46,6 +48,8 @@ func (h *SupportRequestHandler) CreateSupportRequest(c *gin.Context) {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			return
 		}
+		// Log internal server errors for debugging
+		c.Header("X-Internal-Error", err.Error())
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create support request"})
 		return
 	}

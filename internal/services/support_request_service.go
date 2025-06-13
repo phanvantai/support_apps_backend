@@ -46,6 +46,7 @@ func (s *supportRequestService) CreateSupportRequest(req *models.CreateSupportRe
 		Platform:    req.Platform,
 		AppVersion:  req.AppVersion,
 		DeviceModel: req.DeviceModel,
+		App:         req.App, // Fix: Include the App field
 		Status:      models.StatusNew, // Always start with 'new' status
 	}
 
